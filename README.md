@@ -21,7 +21,7 @@ cleanup() {
   sleep 1
   echo "Sending SIGINT to the other script..."
   kill -SIGINT $OTHER_SCRIPT_PID
-
+	
   # Stop the Docker container
   echo "Stopping the Docker container..."
   docker stop $CONTAINER_NAME
@@ -37,29 +37,28 @@ cleanup() {
   }
 
   echo "Files copied successfully. Exiting script."
-  exit 0
 }
 
 # Trap Ctrl+C (SIGINT) to run the cleanup function
 trap cleanup SIGINT
 
 # Step 1: Start the Docker container
-#echo "Starting the Docker container..."
-#docker exec -it  $CONTAINER_NAME /bin/bash -c "while true; do sleep 1; done"
+echo "Starting the Docker container..."
+docker run -d --name $CONTAINER_NAME -v $LOCAL_PATH:/workspace $IMAGE_NAME bash -c "while true; do sleep 1; done"
 
 # Ensure the container started successfully
-#if [ $? -ne 0 ]; then
- # echo "Failed to start the Docker container. Exiting."
- # exit 1
-#fi
+if [ $? -ne 0 ]; then
+  echo "Failed to start the Docker container. Exiting."
+  exit 1
+fi
 
-#echo "Docker container started successfully."
+echo "Docker container started successfully."
 
 # Step 2: Launch the ROS launch file inside the container
 echo "Launching the ROS launch file inside the container..."
-docker exec -d $CONTAINER_NAME bash -c "cd unilidar_sdk/unitree_lidar_ros && source devel/setup.bash && >
+docker exec -d $CONTAINER_NAME bash -c "cd unilidar_sdk/unitree_lidar_ros && source devel/setup.bash && roslaunch unitree_lidar_ros run_without_rviz.launch  & cd catkin_point_lio_unilidar && source devel/setup.bash && roslaunch point_lio_unilidar mapping_unilidar_record.launch --wait && fg"
 
-#docker exec -d $CONTAINER_NAME bash -c "source /opt/ros/noetic/setup.bash && cd /workspace && roslaunch>
+#docker exec -d $CONTAINER_NAME bash -c "source /opt/ros/noetic/setup.bash && cd /workspace && roslaunch $ROS_PACKAGE $LAUNCH_FILE"
 
 # Wait for the user to interrupt the script
 echo "ROS launch file started. Press Ctrl+C to stop and copy files."
@@ -68,5 +67,4 @@ echo "ROS launch file started. Press Ctrl+C to stop and copy files."
 while true; do
   sleep 1
 done
-
 

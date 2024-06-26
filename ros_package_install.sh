@@ -37,7 +37,7 @@ docker run -d --net=host  \
 
 # Clone and install unilidar sdk ros1
 docker exec -it unilio_arm /bin/bash -c "
-        git clone https://github.com/unitreerobotics/unilidar_sdk.git &&
+        git clone https://github.com/gabrieldse/unilidar_sdk.git &&
         cd unilidar_sdk/unitree_lidar_ros &&
         source /opt/ros/noetic/setup.bash &&
   
@@ -57,7 +57,7 @@ docker exec -it unilio_arm /bin/bash -c "
 docker exec -it unilio_arm /bin/bash -c "
         mkdir -p catkin_point_lio_unilidar/src &&
         cd catkin_point_lio_unilidar/src &&
-        git clone https://github.com/unitreerobotics/point_lio_unilidar.git &&
+        git clone git clone https://github.com/gabrieldse/point_lio_unilidar.git &&
         cd .. &&
   source /opt/ros/noetic/setup.bash &&
         catkin_make -j2 -l2"
@@ -77,6 +77,12 @@ docker exec -it unilio_arm /bin/bash -c "
         cd dataset/ &&
         wget https://oss-global-cdn.unitree.com/static/unilidar-2023-09-22-12-42-04.zip &&
         unzip unilidar-2023-09-22-12-42-04.zip "
+        
+# Compiles a TEMPORARY scripts that allows to stop the sensor. TODO FIX
+docker exec -it unilio_arm /bin/bash -c "
+        cd unilidar_sdk/unitree_lidar_sdk/ &&
+        mkdir build &&
+        cd build && cmake .. && make -j2 -l2"
 
 # Create folder to store RAW lidar data
 docker exec -it unilio_arm /bin/bash -c "
